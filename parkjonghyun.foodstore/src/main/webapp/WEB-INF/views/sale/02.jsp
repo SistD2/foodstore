@@ -7,11 +7,8 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<div>테 스 트 용</div>
-	<div>테 스 트 용</div>
-	<div>테 스 트 용</div>
-	<div>테 스 트 용</div>
-	<div>테 스 트 용</div>
-	<div>테 스 트 용</div>
+	<div>테스트스트스</div>
+	<div>테스트스트스</div>
+	<div>테스트스트스</div>
 </body>
 </html>
