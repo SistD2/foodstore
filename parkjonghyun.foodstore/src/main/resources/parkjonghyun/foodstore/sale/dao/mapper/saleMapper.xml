@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="parkjonghyun.foodstore.sale.dao.mapper.SaleMapper">
+	<insert id="addSale" parameterType="string">
+		insert into SALES values(SALE_SEQ.NEXTVAL, #{userId}, #{prodNo}, #{guestNo}, #{prodCnt}, SYSDATE, 0)
+	</insert>
+	<select id="selectSale" parameterType="string" resultType="sale">
+		select sale_no saleNo, user_id userId, product_no prodNo, guest_no guestNo, sale_cnt saleCnt, sale_date saleDate, sale_state saleState
+		from sales
+		where user_id = #{userId}
+		AND sale_state != 3
+		order by sale_no
+	</select>
+	<update id="updateState" parameterType="String">
+		update sales 
+		set sale_state = #{saleState}
+		where sale_no = #{saleNo}
+	</update>
+	
+	<!-- 리스트용 -->
+	<select id="getSales" resultType="Receipt">
+		SELECT s.sale_no saleNo, u.user_name userName, p.product_name prodName, p.product_price prodPrice, s.guest_no guesNo, s.sale_cnt saleCnt, to_char(s.sale_date, 'YYYY-MM-DD') saleDate, (s.sale_cnt * p.product_price) salePay
+		FROM sales s, products p, users u
+		WHERE s.product_no = p.product_no AND s.user_id = u.user_id AND s.sale_date LIKE '%'||#{YYMMDD}||'%'
+		<if test="userId != 'admin'">
+			AND s.user_id = #{userId}
+		</if>
+		ORDER BY s.user_id ASC, s.sale_no DESC
+	</select>
+	
+	<!-- 리스트용 -->
+	<select id="getDateList" resultType="Receipt">
+		SELECT s.sale_no saleNo, u.user_name userName, p.product_name prodName, p.product_price prodPrice, s.guest_no guesNo, s.sale_cnt saleCnt, to_char(s.sale_date, 'YYYY-MM-DD') saleDate, (s.sale_cnt * p.product_price) salePay
+		FROM sales s, products p, users u
+		WHERE s.product_no = p.product_no AND s.user_id = u.user_id AND s.sale_date LIKE '%'||#{YYMMDD}||'%'
+		<if test="userId != 'admin'">
+			AND s.user_id = #{userId}
+		</if>
+		ORDER BY s.user_id ASC, s.sale_no DESC
+	</select>
+	
+	<!-- 라인차트용 -->
+	<select id="getSalesTotal_line" resultType="Receipt">
+		SELECT saleDate, SUM(salePay) saleTotal
+		FROM (SELECT to_char(s.sale_date, 'YYYY-MM-DD') saleDate, p.product_price * s.sale_cnt as salePay
+		  	  FROM sales s, products p, users u
+		      WHERE p.product_no = s.product_no AND u.user_id = s.user_id AND s.sale_date LIKE '%'||#{YYMM}||'%' 
+		      <if test="userId != 'admin'">
+			  AND s.user_id = #{userId}
+			  </if> )
+		GROUP BY saleDate
+		ORDER BY saleDate
+	</select>
+	
+	<!-- 바차트용 -->
+	<select id="getSalesTotal_bar" resultType="Receipt">
+		SELECT userName, SUM(salePay) saleTotal
+		FROM (SELECT u.user_name userName, p.product_name as prodName, p.product_price * s.sale_cnt as salePay
+		  	  FROM sales s, products p, users u
+		       WHERE s.user_id = u.user_id  AND p.product_no = s.product_no AND s.sale_date LIKE '%'||#{YYMM}||'%')
+		GROUP BY userName
+		ORDER BY userName
+	</select>
+	
+	
+	<!-- 파이차트용 -->
+	<select id="getSalesSushi" resultType="Receipt">
+		SELECT prodName, SUM(salePay) saleTotal
+		FROM (SELECT p.product_name as prodName, p.product_price * s.sale_cnt as salePay
+		  	  FROM sales s, products p
+		      WHERE p.product_no = s.product_no AND s.sale_date LIKE '%'||#{YYMM}||'%' AND p.product_case = '초밥류'
+		      <if test="userId != 'admin'">
+					AND s.user_id = #{userId}
+			  </if>	 )
+		GROUP BY prodName
+		ORDER BY prodName
+	</select>
+	
+	<select id="getSalesSide" resultType="Receipt">
+		SELECT prodName, SUM(salePay) saleTotal
+		FROM (SELECT p.product_name as prodName, p.product_price * s.sale_cnt as salePay
+		  	  FROM sales s, products p 
+		      WHERE p.product_no = s.product_no AND s.sale_date LIKE '%'||#{YYMM}||'%' AND p.product_case = '사이드'
+		      <if test="userId != 'admin'">	
+					AND s.user_id = #{userId}
+			  </if>  )
+		GROUP BY prodName
+		ORDER BY prodName
+	</select>
+	
+	<select id="getSalesDrink" resultType="Receipt">
+		SELECT prodName, SUM(salePay) saleTotal
+		FROM (SELECT p.product_name as prodName, p.product_price * s.sale_cnt as salePay
+		  	  FROM sales s, products p
+		      WHERE p.product_no = s.product_no AND s.sale_date LIKE '%'||#{YYMM}||'%' AND p.product_case = '주류'
+			  <if test="userId != 'admin'">
+					AND s.user_id = #{userId}
+			  </if> )
+		GROUP BY prodName
+		ORDER BY prodName
+	</select>
+</mapper>

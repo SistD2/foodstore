@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="parkjonghyun.foodstore.guest.dao.mapper.GuestMapper">
+	<insert id="addGuest">
+        insert into Guests values(GUEST_SEQ.NEXTVAL)
+    </insert>
+    <select id="findGuest" resultType="string">
+    	select max(guest_no) from Guests
+    </select>
+</mapper>

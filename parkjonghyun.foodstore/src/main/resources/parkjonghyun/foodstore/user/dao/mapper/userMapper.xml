@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="parkjonghyun.foodstore.user.dao.mapper.UserMapper">
+	<select id="loginUser" resultType="user" parameterType="user">
+		select user_id userId, user_pw userPw, user_name userName, reg_date regDate,
+		user_address userAddress, user_tel userTel, user_email userEmail
+		from users
+		where user_id = #{userId}
+		AND user_pw = #{userPw}
+	</select>
+	<select id="franCnt" resultType="String">
+		select MAX(user_id)
+		from users
+	</select>
+	<insert id="joinUser" parameterType="user">
+		insert into users values (
+		#{userId}, #{userPw}, #{userName}, #{regDate}, #{userTel}, #{userAddress},
+		#{userEmail})
+	</insert>
+
+	<select id="getUsers" resultType="user">
+		select user_id userId, user_name userName, user_email userEmail,
+		user_address userAddress, user_tel userTel, reg_date regDate
+		from users
+		where user_id != 'admin'
+		order by user_name
+	</select>
+
+	<select id="getUser" resultType="user" parameterType="String">
+		select user_id userId, user_pw userPw, user_name userName, reg_date regDate,
+		user_address userAddress, user_tel userTel, user_email userEmail
+		from users
+		where user_id = #{userId}
+	</select>
+
+	<update id="updateUser" parameterType="user">
+		update users
+		set user_pw = #{userPw}, user_name = #{userName}, reg_date = #{regDate},
+		user_tel = #{userTel}, user_email = #{userEmail}
+		where user_id = #{userId}
+	</update>
+	<delete id="deleteUser" parameterType="string">
+		delete from users
+		where user_id = #{userId}
+	</delete>
+	
+	<select id="getUserSearch" resultType="user" parameterType="string">
+		<![CDATA[
+		select user_name userName, user_address userAddress, user_email userEmail, user_tel userTel, reg_date regDate
+		from (select * from users
+		where user_name LIKE '%' || #{searchVal} || '%'
+		AND user_id != 'admin' 
+		order by user_id)
+		where rownum <= 5 + #{searchCnt}
+		]]>
+	</select>
+
+</mapper>
