@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="parkjonghyun.foodstore.product.dao.mapper.ProdMapper">
+	<select id="getProds" resultType="product">
+		select product_no prodNo, product_name prodName, product_case prodCase, product_cost prodCost, product_price prodPrice, reg_date regDate, product_img_path prodImgPath
+		from products
+		order by product_img_path
+	</select>
+	<select id="getProd" resultType="product" parameterType="string">
+		select product_no prodNo, product_name prodName, product_case prodCase, product_cost prodCost, product_price prodPrice, reg_date regDate, product_img_path prodImgPath
+		from products
+		where product_no = #{prodId}
+	</select>
+	
+	<select id="getProdstr" resultType="product" parameterType="string">
+		select product_no prodNo, product_name prodName, product_case prodCase, product_cost prodCost, product_price prodPrice, reg_date regDate, product_img_path prodImgPath
+		from products
+		where product_no = #{prodId}
+	</select>
+	<select id="getProdSearch" resultType="product" parameterType="string">
+		<![CDATA[
+		SELECT prodNo, prodName, prodCase, prodCost, prodPrice, regDate, prodImgPath 
+		FROM ( 
+			SELECT ROWNUM AS RNUM, prodNo, prodName, prodCase, prodCost, prodPrice, regDate, prodImgPath 
+			FROM ( 
+				SELECT product_no prodNo, product_name prodName, product_case prodCase, product_cost prodCost, product_price prodPrice, reg_date regDate, product_img_path prodImgPath 
+				FROM PRODUCTS 
+				WHERE ${searchCase} LIKE '%' || #{searchVal} || '%'
+				ORDER BY product_no) 
+			WHERE ROWNUM <= ${page} * 10)
+		WHERE RNUM > (${page} - 1) * 10
+		]]>
+	</select>
+	<insert id="addProd" parameterType="product">
+		insert into products values(#{prodNo},#{prodName}, #{prodCase}, #{prodCost}, #{prodPrice}, SYSDATE, #{prodImgPath})
+	</insert>
+	<select id="prodNoCnt" resultType="int">
+		select MAX(product_no)
+ 		from products
+	</select>
+	<update id="updateProd" parameterType="product">
+		update products
+		<set>
+			product_Name = #{prodName}, product_case = #{prodCase}, product_Cost = #{prodCost}, product_price = #{prodPrice}, reg_date = SYSDATE,
+			<if test="prodImgPath != null">product_img_path = #{prodImgPath}</if>
+		</set>
+		where product_no = #{prodNo}
+	</update>
+	<delete id="deleteProd" parameterType="string">
+		delete 
+		from products 
+		where product_no = #{prodNo}
+	</delete>
+	<select id="prodSearchCnt" resultType="int" parameterType="string">
+		select COUNT(*)
+		from products
+		WHERE ${searchCase} LIKE '%' || #{searchVal} || '%'
+	</select>
+	
+	<select id="getProdNameSushi" parameterType="string" resultType="product">
+		SELECT product_name prodName
+		FROM products
+		WHERE product_case = '초밥류'
+		ORDER BY product_name
+	</select>
+	<select id="getProdNameSide" parameterType="string" resultType="product">
+		SELECT product_name prodName
+		FROM products
+		WHERE product_case = '사이드'
+		ORDER BY product_name
+	</select>
+	<select id="getProdNameDrink" parameterType="string" resultType="product">
+		SELECT product_name prodName
+		FROM products
+		WHERE product_case = '주류'
+		ORDER BY product_name
+	</select>
+</mapper>

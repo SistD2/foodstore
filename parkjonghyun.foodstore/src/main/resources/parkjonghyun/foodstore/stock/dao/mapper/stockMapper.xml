@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="parkjonghyun.foodstore.stock.dao.mapper.StockMapper">
+	<select id="getStocks" resultType="stock" parameterType="string">
+		select stock_no stockNo, user_id userId, product_no prodNo, stock_cnt stockCnt
+		from stocks
+		where user_id = #{userId}
+		AND stock_cnt > 5
+		order by stock_no
+	</select>
+	<select id="getStocks0" resultType="stock" parameterType="string">
+		select stock_no stockNo, user_id userId, product_no prodNo, stock_cnt stockCnt
+		from stocks
+		where user_id = #{userId}
+		order by stock_no
+	</select>
+	<update id="saleStocks" parameterType="string">
+		update stocks
+		set stock_cnt = stock_cnt - #{stockCnt}
+		where user_id = #{userId}
+		AND product_no = #{prodNo}
+	</update>
+	<update id="modifyStock" parameterType="string">
+		update stocks
+		set stock_cnt = #{stockCnt}
+		where stock_no = #{stockNo}
+	</update>
+	<insert id="addStocks" parameterType="stock">
+		insert into stocks 
+		values(STOCK_SEQ.NEXTVAL, #{userId}, #{prodNo}, 50)
+	</insert>
+</mapper>
